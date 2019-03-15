@@ -1,0 +1,1344 @@
+{% extends 'masterpage.html' %}
+{% block content %}
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0,
+minimum-scale=1.0, user-scalable=no">
+<div id='header' style="text-align:center;">
+	<p style="font-size:150%;font-weight:bold;color:black;">대포통장</p>
+</div>
+<div class="fullscreen-container">
+<div id='edit-form' class='edit-form'>
+    <div class='edit-header' style="text-align:center; margin-top:5%;">
+        <span style="font-size:140%;font-weight:bold;color:white;">
+            수정
+        </span> 
+        {% load staticfiles %}
+        <img src={% static 'exit.png' %} v-on:click="close_edit_form" style="position:absolute; width:16px; height:16px;
+        float:right; right:20px;" />
+    </div>
+    <div class="edit-body" style="margin-top:10%;">
+        <div style="width:100%">
+            <input id="input_date" type="text" style="border-radius:1em; width:100%; height:30px"
+            v-bind:value="info.date"/>
+        </div>
+        <div syle="width:100%;">
+	<input id="edit_input_points" type="text" style="float: left; margin-bottom: 10px;
+        border-radius:1em; width:17%; height:30px"  v-bind:value="info.point"  onkeydown=moveFocus("inputcontent")
+        onclick="javascript:if(this.value == '점수 입력') this.value='';"
+        onfocusout="javascript:if(this.value == '') this.value='점수 입력';"> 
+	<input id="edit_input_content" type="text" style="float: right; margin-bottom: 10px;
+        border-radius:1em; width:80%; height:30px" id="inputcontent" class="text_l"
+        v-bind:value="info.content"
+        onclick="javascript:if(this.value == '내용 입력') this.value='';"
+        onfocusout="javascript:if(this.value == '') this.value='내용 입력';">
+	</div>
+        <div style="text-align:center;">
+            <button class="btn-submit" v-on:click="save_edit_form"> 저장</button>            
+        </div>
+    </div>
+</div>
+<div id='request-form' class='request-form'>
+    <div class='request-header' style="text-align:center; margin-top:5%;">
+        <span style="font-size:140%;font-weight:bold;color:white;">
+            요청
+        </span>
+        {% load staticfiles %}
+        <img src={% static 'exit.png' %} v-on:click="close_request_form" style="position:absolute; width:16px; height:16px;
+        float:right; right:20px;" />
+    </div>
+    <div class="request-body" style="margin-top:10%; text-align:center">
+        <div>
+            <span stlye="align:center">
+             <button class="btn_gen1" v-on:click="toggle_gender">앙</button> 
+             <button class="btn_gen2" v-on:click="toggle_gender">용</button> 
+         </span>
+        </div>
+        <div>
+        <span style="align:center">
+            <input id="request_input_content" type="text" style="border-radius:1em; width:90%; height:30px"/>
+        </span>
+        </div>
+        <div style="margin-top:10%;">
+            <button class="btn-submit" v-on:click="send_request_form">전송</button>            
+        </div>
+    </div>
+
+</div>
+</div>
+<div id='form' style="height:35vh;">
+
+        <div style="width:100%">
+        <span id="menu_l" style="width:50%;">
+		<button id="btn_menu_l" v-on:click="toggle_menu" style="color: red;
+                    background:silver; font-size:150%; border:0; border-radius:1em 1em 1em
+                    1em; margin-left:0px; margin-bottom:10px;">앙</button> 
+	</span>
+        <span id="menu_r" style="float:right;">
+		<button id="btn_menu_r" v-on:click="toggle_menu" style="position:absoulte;
+                    color: blue;
+                    background:silver; font-size:150%; border:0; border-radius:1em 1em 1em
+                    1em; margin-bottom:10px;">용</button> 
+	</span>
+        </div>
+        <div id="left_panel" class="left_panel">
+	        <div id="user_panel_l" class="user-panel-l" align=center>
+            <div class="total_point" style="padding-top:3%">
+                <div style="color:#FF4444">total</div>
+                <span style="font-size:160%; font-weight:bold; color:red;">[[ total_point ]] </span>
+            </div>
+            <div class="history">
+                <div style="font-size:120%; font-weight:bold">내역</div>
+                <div class="history-body">
+                <table class="history-table">
+                    <template v-for='item in history'>
+                    <tr>
+                        <td>
+                            <ul v-bind:id="'history-' + item.id" class="display-list" style="list-style-type:none;">
+                                <li class="date">[[ item['date'] ]]</li>
+                                <li class="point">[[ item['points'] ]]p 
+                                <button class="btn-tackle" v-on:click="toggle_tackle_form">
+                                    이의제기
+                                </button>
+                                <button class="btn-edit" v-on:click="open_edit_form">
+                                    수정
+                                </button>
+                                </li>
+                                <li class="content" v-on:click="toggle_detail">[[ item['content'] ]]</li>
+                                <li class="tackle-form">
+                                <input style="width:80%">
+                                </input>
+                                <button class="btn-tackle-send" v-on:click="send_tackle">
+                                    전송
+                                </button>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    </template>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="right_panel" class="right_panel">
+                <div id="user_panel_r" class="user-panel-r" align=center>
+                <div class="total_point" style="padding-top:3%">
+                    <div style="color:#4444FF">total </div> 
+                    <span style="font-size:160%; font-weight:bold; color:blue;">[[ total_point ]]</span>
+                </div>
+                <div class="history">
+                    <div style>내역</div>
+                    <div class="history-body">
+                    <table class="history-table">
+                        <template v-for='item in history'>
+                        <tr class='item'>
+                            <td>
+                                <ul v-bind:id="'history-' + item.id" class="display-list" style="list-style-type:none;">
+                                    <li class="date">[[ item['date'] ]]</li>
+                                    <li class="point">[[ item['points'] ]]p
+                                    <button class="btn-tackle" v-on:click="toggle_tackle_form">
+                                        이의제기
+                                    </button>
+                                    <button class="btn-edit" v-on:click="open_edit_form">
+                                    수정
+                                    </button>
+                                    </li>
+                                    <li class="content" v-on:click="toggle_detail">[[ item['content'] ]]</li>
+                                    <li class="tackle-form">
+                                    <input style="width:80%">
+                                    </input>
+                                    <button class="btn-tackle-send" v-on:click="send_tackle">
+                                        전송
+                                    </button>
+                                    </li>
+
+                                </ul>
+                            </td>
+                        </tr>
+                        </template>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    
+	<div id="but1">
+	
+     <button id="button1" style="float:left; width:49.9%; color: white; background:silver;
+         font-size:120%;
+         border:0; border-radius:0.7em 0em 0em 0.7em; padding:3px; margin-right:0; margin-bottom:10px;">앙</button> 
+     <button id="button2" style="float:right; width:49.9%; color: white; background:silver;
+         font-size:120%; border:0;border-radius:0em 0.7em 0.7em 0em; padding:3px; margin-bottom:10px;">용</button> 
+	</div> 
+        <select id='date' name='dates' style="margin-bottom:5px; width:100%; font-size:130%;
+            margin-bottom:10px; text-align:center;">
+	<option value='' v-for='item in items'>[[item]]</option>
+	<option value='' selected>[[todayy]]</option>
+	
+	</select>
+
+	<div style="width:100%;">
+	<input id="input_points" type="text" style="float: left; margin-bottom: 10px;
+        border-radius:1em; width:17%; height:30px"  value="점수 입력"  onkeydown=moveFocus("inputcontent")
+        onclick="javascript:if(this.value == '점수 입력') this.value='';"
+        onfocusout="javascript:if(this.value == '') this.value='점수 입력';"> 
+	<input id="input_content" type="text" style="float: right; margin-bottom: 10px;
+        border-radius:1em; width:70%; height:30px" value="내용 입력"
+        onclick="javascript:if(this.value == '내용 입력') this.value='';"
+        onfocusout="javascript:if(this.value == '') this.value='내용 입력';">
+	</div>
+	
+<div style="clear:both;"></div>
+    <div id="submit">
+        <button id="btn_request" class="btn-request" v-on:click="open_request_form">요청</button>
+        <button id="btn_submit" class="btn-submit" v-on:click="submit">작성</button>      
+    </div>
+  
+</div>
+
+<div style="clear:both;"></div>
+<div class="flip-container">
+<div class="panel">
+        {% load staticfiles %}
+        <div class="title"><img src={% static 'bell.png' %} height="40px" width="30px"
+            onclick="toggle_flip(event);"/></div>
+
+      <div class="body">
+            <table id="notify-panel" style="width:100%;" cellspacing="0">
+                <tbody name="fade" is="transition-group">
+
+                <tr v-for='item in items' v-if="item.type === 'new'" v-bind:id="'newitem-' + item.id" class="notify-table" v-bind:style="{ background:[[
+                    item['background'] ]] }" v-bind:key="item.id" onclick="go_target(event)"> 
+                    <td width="10%" align="center">
+                        <button style="color:white; font-size:100%; border:0; border-radius:1em 1em
+                            1em 1em;" v-bind:style="{ background:[[ item['color'] ]] }">[[ item['name'] ]]</button>
+                    </td>
+                    <td width="90%">
+                        <p style="font-weight:bold;" v-bind:style="{ color:[[ item['color'] ]] }">[[ item['partner'] ]]님에게 [[ item['points'] ]]포인트를 받았습니다.</p> 
+
+                        <p style="font-size:8px;">[[ item['elapsed_time'] ]]</p>
+                    </td>
+                </tr>
+                <tr v-else-if="item.type === 'tackle'" v-bind:id="'tackle-' + item.thing_id"
+                    class="notify-table" v-bind:style="'background:'+item.background"
+                    v-bind:key="'tackle-' + item.thing_id" onclick="go_target(event)"> 
+                    <td width="10%" align="center">
+                        <button style="color:white; font-size:100%; border:0; border-radius:1em 1em
+                            1em 1em;" v-bind:style="'background:'+item.color">[[ item['name'] ]]</button>
+                    </td>
+                    <td width="90%">
+                        <p style="font-size:100%; font-weight:bold;" v-bind:style="{ color:[[
+                        item['color'] ]]}">[[ item['partner'] ]]님에게 이의제기를 받았습니다.</p>
+                        <p style="margin-top:-5%; margin-bottom:-2%; font-color:black; font-size:80%;">[[ item['content'] ]]</p> 
+                        <p style="font-size:70%;">[[ item['elapsed_time'] ]]</p>
+                    </td>
+                </tr>
+                <tr v-else-if="item.type === 'request'" v-bind:id="'request-' + item.id"
+                class="notify-table" v-bind:style="'background:'+item.background"
+                v-bind:key="'request-' + item.id">
+                    <td width="10%" align="center">
+                        <button style="color:white; font-size:100%; border:0; border-radius:1em 1em 1em 1em;" v-bind:style="'background:'+item.color">[[ item['name'] ]]</button>
+                    </td>
+                    <td width="90%">
+                        <p style="font-size:100%; font-weight:bold;" v-bind:style="{ color:[[
+                        item['color'] ]]}">[[ item['partner'] ]]님에게 요청을 받았습니다.</p>
+                        <p style="margin-top:-5%; margin-bottom:-2%; font-color:black; font-size:80%;">[[ item['content'] ]]</p> 
+                        <p style="font-size:70%;">[[ item['elapsed_time'] ]]</p>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+    </div>
+</div>
+<div class="panel_m">
+        {% load staticfiles %}
+        <div class="title"><img src={% static 'message.png' %} height="40px" width="40px" onclick="toggle_flip(event);"/></div>
+      <div class="body">
+            <table id="message-panel" style="width:100%;" cellspacing="0">
+                <tbody name="fade" is="transition-group">
+                    <tr v-for='item in items' v-bind:id="'chat-' + item.id" class="chat-table" v-bind:style="{ background:[[ item['background'] ]] }" v-bind:key="item.id"> 
+                        <td width="10%" align="center">
+                            <button style="color:white; font-size:100%; border:0; border-radius:1em 1em
+                                1em 1em;" v-bind:style="{ background:[[ item['color'] ]] }">[[ item['name'] ]]</button>
+                        </td>
+                        <td width="90%">
+                            <p style="font-weight:bold;" v-bind:style="{ color:[[
+                            item['color']]]}">[[ item['content'] ]]</p> 
+                            <p style="font-size:8px;">[[ item['elapsed_time'] ]]</p>
+                        </td>
+                    </tr> 
+                </tbody>
+            </table>
+    </div>
+</div>	
+</div>
+<div id="message_send" class="message_send">
+    <input class="input_message">
+    </input>
+    <button class="btn_send" onclick="send_message(event)">전송
+    </button>
+</div>
+</div>
+
+</meta> 
+<style>
+.fullscreen-container {
+    display:none; 
+    position:fixed; 
+    width:100%; 
+    height:100%;
+    left:0;
+    bottom:0;
+    right:0;
+    top:0; 
+    z-index:9998;
+    background: rgba(90, 90, 90, 0.5);
+}
+.fade-enter-active{
+    transition: all 0.7s;
+}
+.fade-enter {
+    opacity: 0;
+    transform: translateX(10%);
+}
+:focus {
+    outline: 0;
+}
+.btn-tackle {
+    color: white;
+    background: red;
+    float: right;
+    font-size:75%;
+    border: #ddd;
+    border-radius:1em 1em 1em 1em;
+    margin-right: -120px;
+    transition: margin-right 0.5s linear;
+}
+.btn-tackle.open {
+    margin-right: 1%;
+    transition: margin-right 0.5s linear;
+}
+.btn-tackle.active {
+    background-color: #CC0000;
+}
+.btn-edit {
+    color: white;
+    background: orange;
+    float:right;
+    font-size:75%;
+    border: #bbb;
+    border-radius:1em 1em 1em 1em;
+    margin-right: -50px;
+    transition: margin-right 0.7s linear;
+}
+.btn-edit.open {
+    margin-right: 3%;
+    transition: margin-right 0.7s linear;
+}
+.btn-tackle:hover .btn-tackle:focus, .btn-tackle:active{
+    background-color: #CC0000;
+}
+.btn-edit:hover .btn-edit:focus, .btn-edit:active{
+    background-color: #E0A000;
+}
+.btn-request {
+    color:white;
+    float:left;
+    background:orange;
+    font-size:150%;
+    border:0;
+    border-radius:0.7em 0.7em 0.7em 0.7em;
+    padding:3px 36px;
+    margin-left:1%;
+    margin-bottom:2%;
+    cursor:pointer;
+}
+.btn-submit {
+    color:white;
+    float:right;
+    background:darkslateblue;
+    font-size:150%;
+    border:0;
+    border-radius:0.7em 0.7em 0.7em 0.7em;
+    padding:3px 36px;
+    margin-right:1%;
+    margin-bottom:2%;
+    cursor:pointer;
+}
+.btn-submit:hover .btn-submit:focus, .btn-submit:active{
+    background-color: navy;
+}
+
+.request-form {
+    position:fixed;
+    width: 100%;
+    height: auto;
+    background: #DCDCDC;
+    left:0;
+    bottom:-500px;
+    border-radius: 1em 1em 0 0;
+    z-index: 9999;
+}
+.edit-form {
+    position:fixed;
+    width: 100%;
+    height: auto;
+    background: #DCDCDC;
+    left:0;
+    bottom:-500px;
+    border-radius: 1em 1em 0 0;
+    z-index: 9999;
+}
+.flip-container {
+    width: 100%;
+    height: 60vh;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+}
+.flip-container.flip {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    transform: rotateY(180deg);
+}
+.flip-container .panel {
+    position:absolute;
+    margin : 0% 0% 0% 0%;
+    width: 100%;
+    height: 60vh;
+    transform: rotateY(0deg);
+    backface-visibility: hidden;
+}
+.flip-container .panel .body {
+    width: 100%;
+    height: 100%;
+    padding: 0 0 0 0;
+    overflow-y: auto;
+}
+.flip-container .panel .notify-table {
+    box-shadow: 2px 2px 2px 2px #dcd;
+}
+.flip-container .panel .title {
+    color: #484846;
+    padding: 0px 0 0px 0;
+    text-align: center;
+    font-weight: 500;
+    font-size:150%;
+    border-bottom: 1px solid gray;
+    background: #EFEFEF;
+    border-radius: 0.75em 0.75em 0 0;
+    box-shadow: 1px 1px 1px 1px #ddd;
+    width: 100%;
+}
+.flip-container .panel_m {
+    position: absolute;
+    margin : 0% 0% 0% 0%;
+    width: 100%;
+    height: 60vh;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+}
+.flip-container .panel_m .body {
+    width: 100%;
+    height: 100%;
+    padding: 0 0 0 0;
+    overflow-y: auto;
+}
+.flip-container .panel_m .notify-table {
+    box-shadow: 2px 2px 2px 2px #dcd;
+}
+.flip-container .panel_m .title {
+    color: #484846;
+    padding: 0px 0 0px 0;
+    text-align: center;
+    font-weight: 500;
+    font-size:150%;
+    border-bottom: 1px solid gray;
+    background: #EFEFEF;
+    border-radius: 0.75em 0.75em 0 0;
+    box-shadow: 1px 1px 1px 1px #ddd; 
+    width: 100%;
+}
+.total_point {
+    height:15%;
+}
+.history {
+    height:85%;
+}
+.left_panel {
+    display:none;
+    float:left;
+    position:absolute;
+    height:70vh;
+    left:0;
+    max-width:100%;
+    z-index:100;
+}
+.right_panel {
+    display:none;
+    float:right;
+    position:absolute;
+    height:70vh;
+    right:0;
+    max-width:100%;
+    z-index:100;
+}
+.user-panel-l {
+    background:#FFD0D6;
+    opacity: 0.95;
+    box-shadow: 1px 1px 0 0 #ddd;
+    height:100%;
+    width:100%;
+}
+.user-panel-r {
+    background:#D0D8FC;
+    opacity: 0.95;
+    box-shadow: 0 1px 1px 0 #ddd;
+    height:100%;
+    width:100%;
+}
+.history-body {
+    height: 88%;
+    width: 100%;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.display-list {
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+    width:97.5vw;
+}
+.display-list .date {
+    font-size: 70%;
+    font-color: gray;
+}
+.display-list .point {
+    font-size: 110%;
+    font-weight:bold;
+}
+.display-list .content {
+    font-size: 90%;
+    overflow: auto;
+    white-space: nowrap;
+
+}
+.display-list .tackle-form 
+{
+    display: none;
+}
+.display-list .tackle-form.open
+{
+    display: block;
+}
+.history-table .item {
+    box-shadow: 0 1px 0 0 #bbb;
+}
+.blink_red {
+    animation-duration: 1.5s;
+    animation-name: blink_red;
+    animation-iteration-count: 1;
+}
+.blink_blue {
+    animation-duration: 1.5s;
+    animation-name: blink_blue;
+    animation-iteration-count: 1;
+}
+
+
+@keyframes blink_red {
+    0% {}
+    50% {background-color: lightpink;} 
+    100% {}
+}
+@keyframes blink_blue {
+    0% {}
+    50% {background-color: skyblue;}
+    100% {}
+}
+.history-table td{
+    padding: 3px 3px 3px 3px;
+}
+.request-form .btn_gen1 {
+    width:45%; 
+    color: white; 
+    background:silver;                 
+    font-size:120%;            
+    border:0; 
+    border-radius:0.7em 0em 0em 0.7em; 
+    padding:3px; 
+    margin-right:0; 
+    margin-bottom:10px;
+}
+.request-form .btn_gen2 {
+    width:45%; 
+    color: white; 
+    background:silver;
+    font-size:120%; 
+    border:0;
+    border-radius:0em 0.7em 0.7em 0em; 
+    padding:3px; 
+    margin-bottom:10px;
+}
+.request-form .btn_gen1.active {
+    background:red;
+}
+.request-form .btn_gen2.active {
+    background:blue;
+}
+.message_send {
+    background: brown;
+    position:fixed;
+    width: 100%;
+    height: auto;
+    background: #DCDCDC;
+    left:0;
+    bottom:-100px;
+    z-index: 5000;
+}
+.message_send .input_message {
+    width: 80%;
+    border-radius:1em;  
+    height:30px;
+}
+.message_send .btn_send {
+    width:18%;
+    height:35px;
+    color:white;
+    background:darkslateblue;
+    float:right;
+    font-size:120%;
+    border:0;
+    border-radius:0.7em 0.7em 0.7em 0.7em;
+    padding:3px 0px;
+    cursor:pointer;
+}
+.btn_send:hover .btn_send:focus, .btn_send:active{
+    background-color: navy;
+}
+</style>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js'></script>
+<script>
+
+/* for notification */
+var notifi_list = [];
+var fetched_data = [];
+var total_point_l = 0;
+var total_point_r = 0;
+var data_collection_l = [];
+var data_collection_r = [];
+var chat_list = [];
+
+async function fetch_data() {
+    var data = []; 
+    await axios('http://10.240.65.142:9999/db/thing/').then(res => {
+        for(var i = 0; i < res.data.length; i++){
+            res.data[i]['type'] = 'new';
+            //put_notify(res.data[i]);
+            data.unshift(res.data[i]);
+        } 
+    });    
+    await axios('http://10.240.65.142:9999/db/tackle/').then(res => {
+        for(var i = 0; i < res.data.length; i++){
+            res.data[i]['type'] = 'tackle';
+            data.unshift(res.data[i]);
+        } 
+    });
+    await axios('http://10.240.65.142:9999/db/request/').then(res => {
+        for(var i = 0; i < res.data.length; i++){
+            res.data[i]['type'] = 'request';
+            data.unshift(res.data[i]);
+        } 
+    });
+    await axios('http://10.240.65.142:9999/db/chat/').then(res => {
+        for(var i = 0; i < res.data.length; i++){
+            res.data[i]['type'] = 'chat';
+            data.unshift(res.data[i]);
+        } 
+    });
+    data.sort(function(o1, o2) {
+        return new Date(o1['reporting_date']) - new Date(o2['reporting_date']);
+    });
+    for(var i =0; i < data.length; i++) {
+        put_notify(data[i]);
+    }
+};
+function put_history(message) {
+    var name = message['name'];
+    var points = message['points'];
+    var content = message['content'];
+    var do_date = message['date'];
+    var reporting_date = message['reporting_date'];
+
+    if(name == "앙"){
+        if(data_collection_l.findIndex(x => x.id === message.id) === -1) {
+            data_collection_l.unshift(message);
+        } 
+        total_point_l += parseInt(message.points);
+        vue_user_panel_l.total_point = total_point_l;
+        data_collection_l.sort(function(o1, o2){
+            return new Date(o2['date']) - new Date(o1['date']);
+        });
+    }
+    else if(name == "용"){
+        if(data_collection_r.findIndex(x => x.id === message.id) === -1) {
+            data_collection_r.unshift(message);
+        }
+        total_point_r += parseInt(message.points);
+        vue_user_panel_r.total_point = total_point_r;
+        data_collection_r.sort(function(o1, o2){
+            return new Date(o2['date']) - new Date(o1['date']);
+        });
+    } 
+}
+function update_history(idx, dst) {
+    if(dst['name'] == "앙") {
+        src = data_collection_l[idx];
+        total_point_l += parseInt(dst.points) - parseInt(src.points);
+        vue_user_panel_l.total_point = total_point_l;
+        data_collection_l[idx] = dst;
+        data_collection_l.sort(function(o1, o2) {
+            return new Date(o2['date']) - new Date(o1['date']);
+        });
+    }
+    else if(dst['name'] == "용") {
+        src = data_collection_r[idx];
+        total_point_r += parseInt(dst.points) - parseInt(src.points);
+        vue_user_panel_r.total_point = total_point_r;
+        data_collection_r[idx] = dst;
+        data_collection_r.sort(function(o1, o2) {
+            return new Date(o2['date']) - new Date(o1['date']);
+        });
+    }
+}
+var last_id = 0;
+function put_notify(message) {
+    if(message['id'] > 0) {
+        last_id = message['id'];
+    }
+    var name = message['name'];
+   
+    var thing_id = message['thing_id'];
+    var points = message['points'];
+    var content = message['content'];
+    var do_date = message['date'];
+    var reporting_date = message['reporting_date'];
+    if(message['type'] == 'new')
+        put_history(message);
+    if(message['type'] == 'tackle') {
+        var thing = data_collection_l.find(item => {
+            return item.id == thing_id
+        });
+        if(thing == undefined){
+            thing = data_collection_r.find(item => {
+                return item.id == thing_id
+            });
+        }
+        if(thing.name == "앙") {
+            message['name'] = "용";
+            name = "용";
+        }
+        else {
+            message['name'] = "앙";
+            name = "앙";
+        }
+    }
+    var color = "";
+    var partner = "";
+    var background = "";
+    if(name == "앙"){
+        color = "red";
+        partner = "용";
+        background = "#FFE8EA";
+    }
+    else if(name == "용"){
+        color = "blue";
+        partner = "앙";
+        background = "#E8F0FF";
+    }
+    var date_parse = parseISOString(reporting_date);
+    var date_now = new Date(); date_now.now;
+    //console.log("알림 "+ date_parse);
+    //console.log("지금 "+ date_now);
+
+    var diff = new Date(date_now - date_parse); diff.getTime();
+    
+    diff_sec = diff / 1000;
+    diff_min = Math.round(((diff % 86400000) % 3600000) / 60000);
+    diff_hour = Math.floor(diff_sec / 3600);
+    diff_day = Math.floor(diff_hour / 24);
+    var elapsed_time = "방금 전";
+    if(diff_sec < 60){
+        elapsed_time = "방금전";
+    }
+    else if(diff_sec < 3600) {
+        elapsed_time = diff_min + "분 전";
+    }
+    else if(diff_hour < 24) {
+        elapsed_time = diff_hour + "시간 전";
+    }
+    else {
+        elapsed_time = diff_day + "일 전";
+    }
+    message['color'] = color
+    message['partner'] = partner;
+    message['elapsed_time'] = elapsed_time;
+    message['background'] = background;
+    message['show'] = true;
+    message['id'] = last_id++;
+    if(message['type'] != 'chat')
+        notifi_list.unshift(message);
+    else
+        chat_list.unshift(message);
+};
+function parseISOString(s) {
+    var b = s.split(/\D+/);
+    return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+}
+fetch_data()
+
+var notifySocket = new WebSocket('ws://' + window.location.host + '/ws/')
+notifySocket.onmessage = function(e) {
+    
+    var data = JSON.parse(e.data);
+    
+    var message = data['message'];
+    put_notify(message);
+    
+};
+notifySocket.onopen = function (e) {
+    //alert(e.data);
+    console.log("Socket connected successfully");
+};
+notifySocket.onclose = function (e) {
+    //alert(e.data);
+    console.error('Socket closed unexpectedly');
+};
+var button1 = document.getElementById("button1"); 
+var button2 = document.getElementById("button2");
+var selected_gender = 0;
+var button1Default, button2Default;  
+button1Default = button1.style.backgroundColor; 
+button2Default = button2.style.backgroundColor; 
+button1.addEventListener("click", function(){  
+    if(selected_gender == 1) {
+        button1.style.backgroundColor = button1Default;
+        selected_gender = 0;
+        return;
+    }
+    button2.style.backgroundColor = button2Default;
+    button1.style.backgroundColor = "red"; 
+    selected_gender = 1;
+}); 
+ 
+button2.addEventListener("click", function(){ 
+    if(selected_gender == 2) {
+        button2.style.backgroundColor = button2Default;
+        selected_gender = 0;
+        return;
+    }
+    button1.style.backgroundColor = button1Default; 
+    button2.style.backgroundColor = "blue"; 
+    selected_gender = 2;
+});
+
+document.addEventListener('touchmove', function(event) {
+	event = event.originalEvent || event;
+	if(event.scale > 1) {
+		event.preventDefault();
+	}
+}, false);
+
+
+function moveFocus(next){
+	if(event.keyCode == 13){
+		document.getElementById(next).focus();
+		if(document.getElementById(next).value == '내용을 입력하세요')
+			document.getElementById(next).value = '';
+	}
+}
+var date_array = [];
+var now_date = new Date(); now_date.setDate(now_date.getDate());
+var st_date = now_date.toISOString().substr(0, 10);
+for(var i=7; i>0; i--){
+	var temp_date = new Date(); temp_date.setDate(temp_date.getDate() - i);
+	temp_date = temp_date.toISOString().substr(0, 10);
+	date_array.push(temp_date);
+}
+
+new Vue({
+  delimiters: ['[[', ']]'],
+  el: '#date',
+  data: {
+    todayy: st_date,
+    items: date_array
+  },
+})
+var is_open_user_panel_l = false;
+var is_open_user_panel_r = false;
+new Vue({
+    el: '#menu_l',
+    methods: {
+        toggle_menu: function() {
+            if(is_open_user_panel_r){
+                $("#btn_menu_r").click();
+            }
+            $("#left_panel").toggle('slide', {direction:'left'}, 550);
+            if(!is_open_user_panel_l) {
+                document.getElementById("btn_menu_l").style.background='red';
+                document.getElementById("btn_menu_l").style.color='white';   
+            }
+            else {
+                document.getElementById("btn_menu_l").style.background='silver';
+                document.getElementById("btn_menu_l").style.color='red';
+            }
+            is_open_user_panel_l = !is_open_user_panel_l;
+        },
+    }
+})
+new Vue({
+    el: '#menu_r',
+    methods: {
+        toggle_menu: function() {
+            if(is_open_user_panel_l){
+                $("#btn_menu_l").click();
+            }
+            $("#right_panel").toggle('slide', {direction:'right'}, 550);
+            if(!is_open_user_panel_r) {
+                document.getElementById("btn_menu_r").style.background='blue';
+                document.getElementById("btn_menu_r").style.color='white';  
+            }
+            else {
+                document.getElementById("btn_menu_r").style.background='silver';
+                document.getElementById("btn_menu_r").style.color='blue';
+            }
+            is_open_user_panel_r = !is_open_user_panel_r;
+        },
+     }
+})
+var isflip = false;
+function toggle_flip(event) {
+    //$(".flip-container").toggle('flip');
+    if(isflip){
+        $(".flip-container").removeClass("flip");
+        $(".message_send").animate( {bottom: "-100px"}, 1000);
+    }
+    else {
+        $(".flip-container").addClass("flip");
+        $(".message_send").animate( {bottom: "0px" }, 1000);
+    }
+    isflip = !isflip;
+}
+var info = {};
+function open_request_form(event) {
+    $(".fullscreen-container").fadeTo(1000, 1);
+    $(".request-form").animate( {bottom : "0px" }, 1000);
+}
+function close_request_form() {
+    $(".request-form").animate( {bottom : "-500px" }, 1000);
+    $(".fullscreen-container").fadeOut(1000);
+}
+function toggle_gender(event) {
+    var element = event.target;
+    var other;
+    if(element.innerHTML == "앙"){ 
+        other = element.parentElement.children[1];
+    }
+    else {
+        other = element.parentElement.children[0];
+    }
+    element.classList.toggle('active');
+    other.classList.toggle('active', false);
+}
+function send_request_form(event) {
+    var element = event.target;
+    var request_form = element.parentElement.parentElement;
+    var gender1 = request_form.children[0].children[0].children[0].classList.value;
+    var gender2 = request_form.children[0].children[0].children[1].classList.value;
+    var form_input = request_form.children[1].children[0].children[0];
+    var content = form_input.value;
+    form_input.value = "";
+    var id = element.parentElement.parentElement.id;
+    var name, partner;
+    if(gender1 == "btn_gen1 active") {
+        name = "앙";
+        partner = "용";
+    }
+    else if(gender2 == "btn_gen2 active") {
+        name = "용";
+        partner = "앙";
+    }
+    else {
+        alert("성별을 선택하세요");
+        return;
+    }
+    var color = "blue";
+    var background = "#E8F0FF";
+    var now_time = new Date(); now_time.now;
+    id = id.split("-")[1];
+    var json_post = {
+        "id": id,
+        "name": name,
+        "partner": partner,
+        "color":  color,
+        "background": background,
+        "content": content,
+        "reporting_date": now_time.toISOString(),
+        "type" : "request"
+    } 
+    axios.post('http://10.240.65.142:9999/db/request/', json_post);
+    notifySocket.send(JSON.stringify(json_post));
+    close_request_form();
+}
+function open_edit_form(event) {
+    var element = event.target;
+    var parente = element.parentElement.parentElement;
+    var datee = parente.children[0].innerHTML;
+    var pointe = parente.children[1].innerHTML;
+    var contente = parente.children[2].innerHTML;
+    info['id'] = parente.getAttribute('id');
+    info['date'] = datee;
+    info['point'] = pointe.split('p')[0];
+    info['content'] = contente;
+    vue_ef.$forceUpdate();
+    $(".fullscreen-container").fadeTo(1000, 1);
+    $(".edit-form").animate( {bottom : "0px" }, 1000);
+    toggle_detail(event, 1);
+}
+function close_edit_form(event) {
+    $(".edit-form").animate( {bottom : "-500px" }, 1000);
+    $(".fullscreen-container").fadeOut(1000);
+}
+function save_edit_form(event) {
+    var element = event.target;
+    var parente = element.parentElement.parentElement;
+    var div_first = parente.children[0];
+    var div_second = parente.children[1];
+    var date_value = div_first.children[0].value;
+    var point_value = div_second.children[0].value;
+    var content_value = div_second.children[1].value;
+    var update_message;
+    var id = parseInt(info.id.split('-')[1]);
+    var index = data_collection_l.findIndex(x => x.id === id);
+
+    if(date_value == "") {
+        alert("날짜를 입력해주세요");
+        return;
+    }
+    if(point_value == "" || point_value == "점수 입력") {
+        alert("점수를 입력해주세요");
+        return;
+    }
+    if(content_value =="" || content_value == "내용 입력") {
+        alert("내용을 입력해주세요");
+        return;
+    }
+    if(index == -1) {
+        index = data_collection_r.findIndex(x => x.id === id);
+        update_message = $.extend({}, data_collection_r[index]);
+        update_message['date'] = date_value;
+        update_message['points'] = point_value;
+        update_message['content'] = content_value;
+        update_history(index, update_message); 
+    }
+    else {
+        update_message = $.extend({}, data_collection_l[index]);
+        update_message['date'] = date_value;
+        update_message['points'] = point_value;
+        update_message['content'] = content_value;
+        update_history(index, update_message); 
+    }
+    var json_post = update_message;
+    
+    //axios.put('http://10.240.65.142:9999/db/things/', json_post);
+    close_edit_form();
+}
+function toggle_detail(event, num = 0) {
+    var element;
+    if(num == 0) {
+        element = event.target;
+    }
+    else if(num == 1) {
+        element = event.target.parentElement; 
+    }
+    var tackle = element.parentElement.children[1].children[0];
+    var edit = element.parentElement.children[1].children[1];
+    var tackle_form = element.parentElement.children[3];
+    var ws = element.style['white-space'];
+    var wb = element.style['word-break'];
+    tackle.classList.toggle('open');
+    edit.classList.toggle('open');
+    if(ws != 'normal') {
+        element.style['white-space'] = 'normal';
+        element.style['word-break'] = 'break-all';
+    }
+    else {
+        element.style['white-space'] = 'nowrap';
+        element.style['word-break'] = 'normal';
+        tackle_form.classList.toggle('open', false);
+    }
+}
+function send_message(event) {
+    var name, message;
+    var element = event.target;
+    var message_form = element.parentElement;
+    var form_input = message_form.children[0];
+    message = form_input.value;
+    form_input.value = "";
+    if(selected_gender == 1)
+        name = "앙"
+    else if(selected_gender == 2)
+        name = "용"
+    else {
+        alert('성별을 선택해주세요');
+        return;
+    }
+    if(message == "") {
+        return;
+    }
+    var now_time = new Date(); now_time.now;
+    var json_post = {
+        "name": name,
+        "content": message,
+        "reporting_date": now_time.toISOString(),
+        "type" : "chat"
+    } 
+    //alert(JSON.stringify(json_post));
+    axios.post('http://10.240.65.142:9999/db/chat/', json_post);
+    notifySocket.send(JSON.stringify(json_post));
+}
+function go_target(event) {
+    var id = event.currentTarget.id;
+    id = id.split('-')[1];
+    var history_id = "history-"+ id;
+    var btn_menu;
+    var thing = data_collection_l.find(item => {
+        return item.id == id
+    });
+    if(thing == undefined){ // right panel
+        btn_menu = document.getElementById("btn_menu_r");
+        btn_menu.click();
+        var offset = document.getElementById(history_id).parentElement.parentElement.offsetTop;
+        $(".history-body").animate({scrollTop: offset}, 1500);
+        $(".history-body").promise().done( function() {
+            document.getElementById(history_id).parentElement.parentElement.classList.add("blink_blue");
+            setTimeout(function() {
+                document.getElementById(history_id).parentElement.parentElement.classList.remove("blink_blue");
+            }, 1500);
+        });
+    }
+    else { // left panel
+        btn_menu = document.getElementById("btn_menu_l");
+        btn_menu.click();
+        var offset = document.getElementById(history_id).parentElement.parentElement.offsetTop;
+        $(".history-body").animate({scrollTop: offset}, 1500);
+        $(".history-body").promise().done( function() {
+            document.getElementById(history_id).parentElement.parentElement.classList.add("blink_red");
+            setTimeout(function() {
+                document.getElementById(history_id).parentElement.parentElement.classList.remove("blink_red");
+            }, 1500);
+        });
+    }
+
+}
+var vue_user_panel_l = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#user_panel_l',
+    data: {
+        total_point: total_point_l,
+        history: data_collection_l,
+    },
+    methods: {
+        toggle_detail: function(event) {
+            toggle_detail(event);
+        },
+        toggle_tackle_form: function(event) {
+            var element = event.target;
+            var tackle_form = element.parentElement.parentElement.children[3];
+            tackle_form.children[0].value = ""
+            tackle_form.classList.toggle('open');
+        },
+        send_tackle: function(event) {
+            var element = event.target;
+            var tackle_form = element.parentElement;
+            var form_input = tackle_form.children[0];
+            var content = form_input.value;
+            form_input.value = "";
+            var id = element.parentElement.parentElement.id;
+            var name = "용";
+            var partner = "앙";
+            var color = "blue";
+            var background = "#E8F0FF";
+            var now_time = new Date(); now_time.now;
+            id = id.split("-")[1];
+            console.log(id);
+            var json_post = {
+                "thing_id": id,
+                "name": name,
+                "partner": partner,
+                "color":  color,
+                "background": background,
+                "content": content,
+                "reporting_date": now_time.toISOString(),
+                "type" : "tackle"
+            } 
+            axios.post('http://10.240.65.142:9999/db/tackle/', json_post);
+            notifySocket.send(JSON.stringify(json_post));
+
+        },
+        open_edit_form: function(event) {
+            open_edit_form(event);                  
+        }
+    }
+})
+var vue_user_panel_r = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#user_panel_r',
+    data: {
+        total_point: total_point_r,
+        history: data_collection_r,
+    },
+    methods: {
+        toggle_detail: function(event) {
+            toggle_detail(event);
+        },
+        toggle_tackle_form: function(event) {
+            var element = event.target;
+            var tackle_form = element.parentElement.parentElement.children[3];
+            tackle_form.classList.toggle('open');
+        },
+        send_tackle: function(event) {
+            var element = event.target;
+            var tackle_form = element.parentElement;
+            var form_input = tackle_form.children[0];
+            var content = form_input.value;
+            form_input.value = "";
+            var id = element.parentElement.parentElement.id;
+            var name = "앙";
+            var partner = "용";
+            var color = "red";
+            var background = "#FFE8EA";
+            var now_time = new Date(); now_time.now;
+            id = id.split("-")[1];
+            console.log(id);
+            var json_post = {
+                "thing_id": id,
+                "name": name,
+                "partner": partner,
+                "color":  color,
+                "background": background,
+                "content": content,
+                "reporting_date": now_time.toISOString(),
+                "type" : "tackle"
+            } 
+            axios.post('http://10.240.65.142:9999/db/tackle/', json_post);
+            notifySocket.send(JSON.stringify(json_post));
+
+        },
+        open_edit_form: function(event) {
+            open_edit_form(event);
+        }
+    }
+})
+new Vue({
+    el: '#submit',
+    methods: {
+        submit: function() {
+            var e = document.getElementById("date");
+            var selected_date = e.options[e.selectedIndex].text;
+            var points = document.getElementById('input_points').value;
+            var content = document.getElementById('input_content').value;
+            var name;
+            if(selected_gender == 1)
+                name = "앙"
+            else if(selected_gender == 2)
+                name = "용"
+            else {
+                alert('성별을 선택해주세요');
+                return;
+            }
+            if(points == "점수 입력" || points == ""){
+                alert('점수를 입력하세요');
+                return;
+            }
+            if(content == "내용 입력" || content == "") {
+                alert('내용을 입력하세요');
+                return;
+            }
+            var now_time = new Date(); now_time.now;
+            var json_post = {
+                "name": name,
+                "date": selected_date,
+                "points": points,
+                "content": content,
+                "reporting_date": now_time.toISOString(),
+                "type" : "new"
+            } 
+            //alert(JSON.stringify(json_post));
+            axios.post('http://10.240.65.142:9999/db/thing/', json_post);
+            notifySocket.send(JSON.stringify(json_post));
+            document.getElementById('input_points').value = '점수 입력';
+            document.getElementById('input_content').value = '내용 입력';
+            if(selected_gender == 1)
+                button1.click();
+            else
+                button2.click();
+            selected_gender = 0;
+        },
+        open_request_form: function(event) {
+            open_request_form(event);
+        },
+    }
+})
+new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#notify-panel',
+    data: {
+        items: notifi_list,
+   },
+})
+var vue_ef = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#edit-form',
+    data: {
+        info: info
+    },
+    methods: { 
+        close_edit_form: function(event){
+            close_edit_form();
+        },
+        save_edit_form: function(event){
+            save_edit_form(event);
+        },
+    }
+})
+new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#request-form',
+    methods: {
+        close_request_form: function(event){
+            close_request_form();
+        },
+        send_request_form: function(event){
+            send_request_form(event);
+        },
+        toggle_gender: function(event){
+            toggle_gender(event);  
+        },
+    }
+})
+new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#message-panel',
+    data: {
+        items: chat_list,
+    }, 
+})
+</script>
+{% endblock %}
