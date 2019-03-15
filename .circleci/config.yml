@@ -50,6 +50,9 @@ jobs:
           path: test-reports
           destination: test-reports
   deploy:
+    machine:
+      enabled: true
+    working_directory: ~/circleci-demo-workflows
     steps:
       - checkout
       - run:
