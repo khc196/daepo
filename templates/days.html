@@ -802,8 +802,9 @@ function parseISOString(s) {
     return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
 }
 fetch_data()
-
-var notifySocket = new WebSocket('wss://' + window.location.host + '/ws/')
+var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+var notifySocket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws" + window.location.pathname);
+//var notifySocket = new WebSocket('wss://' + window.location.host + '/ws/')
 notifySocket.onmessage = function(e) {
     
     var data = JSON.parse(e.data);
