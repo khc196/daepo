@@ -803,8 +803,8 @@ function parseISOString(s) {
 }
 fetch_data()
 var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-//var notifySocket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws" + window.location.pathname);
-var notifySocket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws' + window.location.pathname)
+var notifySocket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws" + window.location.pathname);
+//var notifySocket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws' + window.location.pathname)
 notifySocket.onmessage = function(e) {
     
     var data = JSON.parse(e.data);
