@@ -623,7 +623,7 @@ minimum-scale=1.0, user-scalable=no">
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js'></script>
 <script>
 
 /* for notification */
@@ -637,26 +637,26 @@ var chat_list = [];
 
 async function fetch_data() {
     var data = []; 
-    await axios('http://10.240.65.142:9999/db/thing/').then(res => {
+    await axios('http://daepo.herokuapp.com/db/thing/').then(res => {
         for(var i = 0; i < res.data.length; i++){
             res.data[i]['type'] = 'new';
             //put_notify(res.data[i]);
             data.unshift(res.data[i]);
         } 
     });    
-    await axios('http://10.240.65.142:9999/db/tackle/').then(res => {
+    await axios('http://daepo.herokuapp.com/db/tackle/').then(res => {
         for(var i = 0; i < res.data.length; i++){
             res.data[i]['type'] = 'tackle';
             data.unshift(res.data[i]);
         } 
     });
-    await axios('http://10.240.65.142:9999/db/request/').then(res => {
+    await axios('http://daepo.herokuapp.com/db/request/').then(res => {
         for(var i = 0; i < res.data.length; i++){
             res.data[i]['type'] = 'request';
             data.unshift(res.data[i]);
         } 
     });
-    await axios('http://10.240.65.142:9999/db/chat/').then(res => {
+    await axios('http://daepo.herokuapp.com/db/chat/').then(res => {
         for(var i = 0; i < res.data.length; i++){
             res.data[i]['type'] = 'chat';
             data.unshift(res.data[i]);
@@ -992,7 +992,7 @@ function send_request_form(event) {
         "reporting_date": now_time.toISOString(),
         "type" : "request"
     } 
-    axios.post('http://10.240.65.142:9999/db/request/', json_post);
+    axios.post('http://daepo.herokuapp.com/db/request/', json_post);
     notifySocket.send(JSON.stringify(json_post));
     close_request_form();
 }
@@ -1056,7 +1056,7 @@ function save_edit_form(event) {
     }
     var json_post = update_message;
     
-    //axios.put('http://10.240.65.142:9999/db/things/', json_post);
+    //axios.put('http://daepo.herokuapp.com/db/things/', json_post);
     close_edit_form();
 }
 function toggle_detail(event, num = 0) {
@@ -1110,7 +1110,7 @@ function send_message(event) {
         "type" : "chat"
     } 
     //alert(JSON.stringify(json_post));
-    axios.post('http://10.240.65.142:9999/db/chat/', json_post);
+    axios.post('http://daepo.herokuapp.com/db/chat/', json_post);
     notifySocket.send(JSON.stringify(json_post));
 }
 function go_target(event) {
@@ -1188,7 +1188,7 @@ var vue_user_panel_l = new Vue({
                 "reporting_date": now_time.toISOString(),
                 "type" : "tackle"
             } 
-            axios.post('http://10.240.65.142:9999/db/tackle/', json_post);
+            axios.post('http://daepo.herokuapp.com/db/tackle/', json_post);
             notifySocket.send(JSON.stringify(json_post));
 
         },
@@ -1237,7 +1237,7 @@ var vue_user_panel_r = new Vue({
                 "reporting_date": now_time.toISOString(),
                 "type" : "tackle"
             } 
-            axios.post('http://10.240.65.142:9999/db/tackle/', json_post);
+            axios.post('http://daepo.herokuapp.com/db/tackle/', json_post);
             notifySocket.send(JSON.stringify(json_post));
 
         },
@@ -1281,7 +1281,7 @@ new Vue({
                 "type" : "new"
             } 
             //alert(JSON.stringify(json_post));
-            axios.post('http://10.240.65.142:9999/db/thing/', json_post);
+            axios.post('http://daepo.herokuapp.com/db/thing/', json_post);
             notifySocket.send(JSON.stringify(json_post));
             document.getElementById('input_points').value = '점수 입력';
             document.getElementById('input_content').value = '내용 입력';
