@@ -625,7 +625,6 @@ minimum-scale=1.0, user-scalable=no">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js'></script>
 <script>
-import ReconnectingWebSocket from 'reconnecting-websocket';
 
 /* for notification */
 var notifi_list = [];
@@ -804,8 +803,8 @@ function parseISOString(s) {
 }
 fetch_data()
 var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-var notifySocket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws" + window.location.pathname);
-//var notifySocket = new WebSocket('wss://' + window.location.host + '/ws/')
+//var notifySocket = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/ws" + window.location.pathname);
+var notifySocket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws' + window.location.pathname)
 notifySocket.onmessage = function(e) {
     
     var data = JSON.parse(e.data);
