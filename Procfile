@@ -1,1 +1,1 @@
-web: gunicorn daepo_app.wsgi
+web: gunicorn daepo_web.wsgi
