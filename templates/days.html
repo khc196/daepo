@@ -868,6 +868,7 @@ function moveFocus(next){
 }
 var date_array = [];
 var now_date = new Date(); now_date.setDate(now_date.getDate());
+console.log(now_date);
 var st_date = now_date.toISOString().substr(0, 10);
 for(var i=7; i>0; i--){
 	var temp_date = new Date(); temp_date.setDate(temp_date.getDate() - i);
