@@ -1060,7 +1060,7 @@ function save_edit_form(event) {
     }
     var json_post = update_message;
     
-    //axios.put('https://daepo.herokuapp.com/db/things/', json_post);
+    axios.put('https://daepo.herokuapp.com/db/things/' + id, json_post);
     close_edit_form();
 }
 function toggle_detail(event, num = 0) {
